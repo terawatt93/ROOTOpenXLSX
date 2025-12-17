@@ -1,4 +1,4 @@
-This project is aimed to add easy access to read/write .xlsx files from ROOT scripts. The library is just an interface to  troldal /
+This project is aimed to add easy access to read/write .xlsx files from ROOT scripts. This library is just an interface to  troldal /
 OpenXLSX.
 Installation:
 1. Clone repository
