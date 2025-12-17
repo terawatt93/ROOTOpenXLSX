@@ -4,34 +4,11 @@
 #include <TObject.h>
 #include <typeinfo>
 #include <map>
+#pragma once
 
 using namespace std;
 using namespace OpenXLSX;
 
-namespace {
-    // Функция, гарантирующая линковку ВСЕХ необходимых классов OpenXLSX
-    void __attribute__((used)) force_link_openxlsx_classes() {
-        // Используем void* вместо volatile auto*
-        const void* volatile ptrs[] = {
-            // Базовые классы
-            (void*)typeid(OpenXLSX::XLCellAssignable).name(),
-            (void*)typeid(OpenXLSX::XLCellValue).name(),
-            (void*)typeid(OpenXLSX::XLCell).name(),
-            (void*)typeid(OpenXLSX::XLWorksheet).name(),
-            (void*)typeid(OpenXLSX::XLWorkbook).name(),
-            (void*)typeid(OpenXLSX::XLDocument).name(),
-            // Шаблонные классы
-            (void*)typeid(OpenXLSX::XLColor).name(),
-            (void*)typeid(OpenXLSX::XLDateTime).name(),
-            (void*)typeid(OpenXLSX::XLFormula).name(),
-            // Важные внутренние классы
-            (void*)typeid(OpenXLSX::XLXmlData).name(),
-            //(void*)typeid(OpenXLSX::XLAbstractXMLFile).name(),
-            (void*)typeid(OpenXLSX::XLContentTypes).name(),
-        };
-        (void)ptrs; // Подавление предупреждений
-    }
-}
 class ROOTXLWorksheet
 {
 	public:
@@ -60,6 +37,7 @@ class ROOTOpenXLSX: public TObject
 	void SetInitCeil(uint32_t x,uint32_t y);
 	void SelectRow(int rn);
 	int NRows();
+	int NColumns();
 	ROOTOpenXLSX();
 	
 	ClassDef(ROOTOpenXLSX, 1);

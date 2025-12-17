@@ -33,8 +33,12 @@ void ROOTOpenXLSX::Open(string Name, string OpenOption, string FirstWSName)
 		doc->create(Name, XLForceOverwrite);
 		ROOTXLWorksheet ws;
 		ws.Name=FirstWSName;
-		ws.ws=doc->workbook().worksheet("Sheet1");
-		ws.ws.updateSheetName("Sheet1",FirstWSName);
+		if(FirstWSName!="Sheet1")
+		{
+			doc->workbook().addWorksheet(FirstWSName);
+			doc->workbook().deleteSheet("Sheet1");
+		}
+		ws.ws=doc->workbook().worksheet(FirstWSName);
 		Worksheets[FirstWSName]=ws;
 		CurrentWorksheet=&(Worksheets[FirstWSName]);
 		ForWrite=true;
@@ -183,6 +187,7 @@ ROOTOpenXLSX &operator << (ROOTOpenXLSX &tx, string value)
 	else
 	{
 		tx.WriteCeil(tx.CurrentWorksheet->CellY,tx.CurrentWorksheet->CellX,value);
+		tx.CurrentWorksheet->CellX++;
 	}
 	return tx;
 }
@@ -195,6 +200,17 @@ int ROOTOpenXLSX::NRows()
 	}
 	return CurrentWorksheet->ws.rowCount();
 }
+
+int ROOTOpenXLSX::NColumns()
+{
+	if(!CurrentWorksheet)
+	{
+		cout<<"This is ROOTOpenXLSX::NColumns(): pointer to CurrentWorksheet is invalid!\n";
+		return 0;
+	}
+	return CurrentWorksheet->ws.columnCount();
+}
+
 void ROOTOpenXLSX::SelectRow(int rn)
 {
 	if(!CurrentWorksheet)
@@ -215,10 +231,21 @@ ROOTOpenXLSX &operator >> (ROOTOpenXLSX &tx, double &value)
 	}
 	int CellX=tx.CurrentWorksheet->CellX;
 	int CellY=tx.CurrentWorksheet->CellY;
+	//cout<<"t:double\n";
+	//cout<<"Cell: ("<<CellX<<","<<CellY<<"): "<<tx.CurrentWorksheet->ws.cell(CellY,CellX).value().get<std::string>()<<" double \n";
+	if(CellX<tx.NColumns())
 	tx.CurrentWorksheet->CellX++;
 	if(tx.CurrentWorksheet->ws.cell(CellY,CellX).value().type()!=OpenXLSX::XLValueType::Empty && ( tx.CurrentWorksheet->ws.cell(CellY,CellX).value().type() == OpenXLSX::XLValueType::Float || tx.CurrentWorksheet->ws.cell(CellY,CellX).value().type() == OpenXLSX::XLValueType::Integer))
 	{
-		value=tx.CurrentWorksheet->ws.cell(CellY,CellX).value();
+		if(tx.CurrentWorksheet->ws.cell(CellY,CellX).value().type() == OpenXLSX::XLValueType::Integer)
+		{
+			int val=tx.CurrentWorksheet->ws.cell(CellY,CellX).value();
+			value=double(val);
+		}
+		else
+		{
+			value=tx.CurrentWorksheet->ws.cell(CellY,CellX).value();
+		}
 	}
 	return tx;
 }
@@ -230,10 +257,21 @@ ROOTOpenXLSX &operator >> (ROOTOpenXLSX &tx, float &value)
 	}
 	int CellX=tx.CurrentWorksheet->CellX;
 	int CellY=tx.CurrentWorksheet->CellY;
+	//cout<<"t:float\n";
+	if(CellX<tx.NColumns())
 	tx.CurrentWorksheet->CellX++;
+	//cout<<"Cell: ("<<CellX<<","<<CellY<<"): "<<tx.CurrentWorksheet->ws.cell(CellY,CellX).value().get<std::string>()<<" float \n";
 	if(tx.CurrentWorksheet->ws.cell(CellY,CellX).value().type()!=OpenXLSX::XLValueType::Empty && ( tx.CurrentWorksheet->ws.cell(CellY,CellX).value().type() == OpenXLSX::XLValueType::Float || tx.CurrentWorksheet->ws.cell(CellY,CellX).value().type() == OpenXLSX::XLValueType::Integer))
 	{
-		value=tx.CurrentWorksheet->ws.cell(CellY,CellX).value();
+		if(tx.CurrentWorksheet->ws.cell(CellY,CellX).value().type() == OpenXLSX::XLValueType::Integer)
+		{
+			int val=tx.CurrentWorksheet->ws.cell(CellY,CellX).value();
+			value=float(val);
+		}
+		else
+		{
+			value=tx.CurrentWorksheet->ws.cell(CellY,CellX).value();
+		}
 	}
 	return tx;
 }
@@ -245,10 +283,21 @@ ROOTOpenXLSX &operator >> (ROOTOpenXLSX &tx, int &value)
 	}
 	int CellX=tx.CurrentWorksheet->CellX;
 	int CellY=tx.CurrentWorksheet->CellY;
+	//cout<<"t:int\n";
+	//cout<<"Cell: ("<<CellX<<","<<CellY<<"): "<<tx.CurrentWorksheet->ws.cell(CellY,CellX).value().get<std::string>()<<" int \n";
+	if(CellX<tx.NColumns())
 	tx.CurrentWorksheet->CellX++;
 	if(tx.CurrentWorksheet->ws.cell(CellY,CellX).value().type()!=OpenXLSX::XLValueType::Empty && tx.CurrentWorksheet->ws.cell(CellY,CellX).value().type() == OpenXLSX::XLValueType::Integer)
 	{
-		value=tx.CurrentWorksheet->ws.cell(CellY,CellX).value();
+		if(tx.CurrentWorksheet->ws.cell(CellY,CellX).value().type() == OpenXLSX::XLValueType::Float)
+		{
+			float val=tx.CurrentWorksheet->ws.cell(CellY,CellX).value();
+			value=int(val);
+		}
+		else
+		{
+			value=tx.CurrentWorksheet->ws.cell(CellY,CellX).value();
+		}
 	}
 	return tx;
 }
@@ -260,10 +309,21 @@ ROOTOpenXLSX &operator >> (ROOTOpenXLSX &tx, unsigned int &value)
 	}
 	int CellX=tx.CurrentWorksheet->CellX;
 	int CellY=tx.CurrentWorksheet->CellY;
+	//cout<<"t:uint\n";
+	//cout<<"Cell: ("<<CellX<<","<<CellY<<"): "<<tx.CurrentWorksheet->ws.cell(CellY,CellX).value().get<std::string>()<<" unsigned int \n";
+	if(CellX<tx.NColumns())
 	tx.CurrentWorksheet->CellX++;
 	if(tx.CurrentWorksheet->ws.cell(CellY,CellX).value().type()!=OpenXLSX::XLValueType::Empty && tx.CurrentWorksheet->ws.cell(CellY,CellX).value().type() == OpenXLSX::XLValueType::Integer)
 	{
-		value=tx.CurrentWorksheet->ws.cell(CellY,CellX).value();
+		if(tx.CurrentWorksheet->ws.cell(CellY,CellX).value().type() == OpenXLSX::XLValueType::Float)
+		{
+			float val=tx.CurrentWorksheet->ws.cell(CellY,CellX).value();
+			value=uint(val);
+		}
+		else
+		{
+			value=tx.CurrentWorksheet->ws.cell(CellY,CellX).value();
+		}
 	}
 	return tx;
 }
@@ -276,10 +336,26 @@ ROOTOpenXLSX &operator >> (ROOTOpenXLSX &tx, string &value)
 	}
 	int CellX=tx.CurrentWorksheet->CellX;
 	int CellY=tx.CurrentWorksheet->CellY;
+	if(CellX<tx.NColumns())
 	tx.CurrentWorksheet->CellX++;
+	//cout<<"t:string\n";
+	//cout<<"Cell: ("<<CellX<<","<<CellY<<"): "<<tx.CurrentWorksheet->ws.cell(CellY,CellX).value().get<std::string>()<<" string \n";
 	if(tx.CurrentWorksheet->ws.cell(CellY,CellX).value().type()!=OpenXLSX::XLValueType::Empty)
 	{
-		value=tx.CurrentWorksheet->ws.cell(CellY,CellX).value().get<std::string>();
+		if(tx.CurrentWorksheet->ws.cell(CellY,CellX).value().type() == OpenXLSX::XLValueType::Float)
+		{
+			float val=tx.CurrentWorksheet->ws.cell(CellY,CellX).value();
+			value=to_string(val);
+		}
+		else if(tx.CurrentWorksheet->ws.cell(CellY,CellX).value().type() == OpenXLSX::XLValueType::Integer)
+		{
+			int val=tx.CurrentWorksheet->ws.cell(CellY,CellX).value();
+			value=to_string(val);
+		}
+		else
+		{
+			value=tx.CurrentWorksheet->ws.cell(CellY,CellX).value().get<std::string>();
+		}
 	}
 	return tx;
 }
