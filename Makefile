@@ -27,6 +27,12 @@ ALL_SRCS = $(ROOT_SRCS) $(OPENXLSX_SRCS)
 all: $(PROGRAM)
 
 ROOTOpenXLSXLib.cxx: ROOTOpenXLSXLib_LinkDef.h
+	@if [ -d .git ] && [ -f .gitmodules ]; then \
+		if [ ! -f external/OpenXLSX/CMakeLists.txt ]; then \
+			echo "Initializing git submodules..."; \
+			git submodule update --init --recursive; \
+		fi; \
+	fi
 	@echo "Generating dictionary ..."
 	@rootcling -f ROOTOpenXLSXLib.cxx -rml $(PROGRAM) -rmf ROOTOpenXLSXLib.rootmap  ROOTOpenXLSXLib.hh ROOTOpenXLSXLib_LinkDef.h 
 
