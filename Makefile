@@ -23,6 +23,12 @@ INCLUDES=-I $(MAKEFILE_DIR)external/OpenXLSX/OpenXLSX -I $(MAKEFILE_DIR)external
 # Все исходники вместе
 ALL_SRCS = $(ROOT_SRCS) $(OPENXLSX_SRCS)
 
+# Используем текущую директорию make
+SCRIPT_DIR := $(CURDIR)
+
+# Экспортируем переменные
+export LD_LIBRARY_PATH := $(LD_LIBRARY_PATH):$(SCRIPT_DIR)/external/OpenXLSX/OpenXLSX/:$(SCRIPT_DIR)/external/OpenXLSX/gnu-make-crutch:$(SCRIPT_DIR)
+export CPATH := $(CPATH):$(SCRIPT_DIR)/external/OpenXLSX/OpenXLSX/:$(SCRIPT_DIR)/external/OpenXLSX/gnu-make-crutch:$(SCRIPT_DIR)
 
 all: $(PROGRAM)
 
